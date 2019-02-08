@@ -1,4 +1,4 @@
-# Tensorflow examples: C++ API
+# Tensorflow detector 2D: C++ API
 
 [![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflow-cpp-examples.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflow-cpp-examples)
 
