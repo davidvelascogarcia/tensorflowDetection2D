@@ -1,7 +1,7 @@
 
 
 # Add cpp and hpp files
-add_executable(tensorflowDetection2D main.cpp TensorflowDetection2D.hpp TensorflowDetection2D.cpp TensorflowSessionTest.h TensorflowSessionTest.cpp TensorflowDetector.hpp TensorflowDetector.cpp MainDetector.hpp MainDetector.cpp)
+add_executable(tensorflowDetection2D main.cpp TensorflowDetection2D.hpp TensorflowDetection2D.cpp TensorflowDetector.hpp TensorflowDetector.cpp MainDetector.hpp MainDetector.cpp)
 # YARP, OpenCV and TensorFlow_cc packages
 find_package(YARP REQUIRED)
 find_package(OpenCV REQUIRED)
