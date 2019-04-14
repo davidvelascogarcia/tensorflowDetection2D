@@ -6,6 +6,20 @@
  * ************************************************************
  */
 
+/*
+  *
+  * | INPUT PORT                      | CONTENT                                                 |
+  * |---------------------------------|---------------------------------------------------------|
+  * | /tensorflowDetection2D/img:i    | Input image                                       |
+  *
+  *
+  * | OUTPUT PORT                     | CONTENT                                                 |
+  * |---------------------------------|---------------------------------------------------------|
+  * | /tensorflowDetection2D/img:o    | Output image with object detection               |
+  * | /tensorflowDetection2D/results  | Output result, object, score and number           |
+  *
+  */
+
 // Libraries
 
 #include <iostream>
@@ -94,9 +108,9 @@ int main(int argc, char ** argv){
   rf.setDefaultContext("tensorflowDetection2D");
   rf.setDefaultConfigFile("tensorflowDetection2D.ini");
   rf.configure(argc, argv);
-  std::string pathToModel = rf.check("pathToModel", yarp::os::Value(""), "documentation").asString();
-  labels = rf.findFileByName("labels_map.pbtxt");
-  graph = rf.findFileByName("frozen_inference_graph.pb");*/
+  std::string pathToModel = rf.check("pathToModel", yarp::os::Value(""), "documentation").asString();*/
+  //labels = rf.findFileByName("labels_map.pbtxt");
+  //graph = rf.findFileByName("frozen_inference_graph.pb");
   labels="./../models/labels_map.pbtxt";
   graph="./../models/frozen_inference_graph.pb";
   // Object detector
