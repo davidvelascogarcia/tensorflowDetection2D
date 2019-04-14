@@ -18,7 +18,7 @@
 
         <module>
                 <name>tensorflowDetection2D</name>
-                <workdir>"./../programs/tensorflowDetection2D/build/tensorflowDetection2D"</workdir>
+                <workdir>./../programs/tensorflowDetection2D/build/tensorflowDetection2D</workdir>
                 <node>localhost</node>
         </module>
         <module>
