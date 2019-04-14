@@ -18,8 +18,11 @@
 #include "tensorflow/core/platform/init_main.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
-#include <yarp/os/all.h>
-#include <yarp/sig/all.h>
+#include <yarp/os/Bottle.h>
+#include <yarp/os/BufferedPort.h>
+#include <yarp/os/ConnectionReader.h>
+#include <yarp/os/Port.h>
+#include <yarp/os/PortReader.h>
 #include <yarp/sig/Image.h>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/videoio.hpp>
@@ -28,22 +31,12 @@
 #include <cv.hpp>
 #include "TensorflowDetector.hpp"
 
-using tensorflow::Flag;
-using tensorflow::Tensor;
-using tensorflow::Status;
-using tensorflow::string;
-using tensorflow::int32;
-
-using namespace yarp::os;
-using namespace yarp::sig;
-using namespace yarp::sig::draw;
-using namespace std;
-using namespace cv;
 
 class maindetector
 {
 public:
-int detect(string labels, string graph, string video_source, Port puerto_pre, Port puerto_post);
-
+int detect(std::string labels, std::string graph, yarp::os::Port sender_port_post, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg, yarp::os::Port results_port);
+private:
+yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg_i;
 };
 #endif //MAINDETECTOR_HPP
