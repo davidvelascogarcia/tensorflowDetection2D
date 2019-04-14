@@ -179,9 +179,5 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
 }
     cv::destroyAllWindows();
 
-
-}
-
-
     return 0;
 }
