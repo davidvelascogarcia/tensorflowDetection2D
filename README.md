@@ -1,26 +1,25 @@
-# Tensorflow detector 2D: C++ API
-
-[![Build Status](https://travis-ci.org/davidvelascogarcia//tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia//tensorflowDetection2D)
+# Tensorflow: Object Detection (Python API)
+[![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowObjectRecognition.svg?branch=master)](https://travis-ci.org/davidvelascogarcia/tensorflowObjectRecognition)
 
 - [Introducción](#introducción)
 - [Listado de programas](#listado-de-programas)
-- [Documentación](#documentación)
 - [Enlaces de interés](#enlaces-de-interés)
+
 
 ## Introducción
 
-Repositorio dedicado a la implementación de un detector 2D con uso de la API en C++ de Tensorflow. Emisión de fuente de vídeo pre y post-procesada vía YARP.
-TensorFlow es una biblioteca de código abierto para aprendizaje automático a través de un rango de tareas, y desarrollado por Google para satisfacer sus necesidades de sistemas capaces de construir y entrenar redes neuronales para detectar y descifrar patrones y correlaciones, análogos al aprendizaje y razonamiento usados por los humanos.1​ Actualmente es utilizado tanto en la investigación como en los productos de Google.
+`tensorflowObjectRecognition`, implementación de detector de reconocimiento de objetos mediante el uso de la `API` para`Python` de `Tensorflow` Object Recognition.
+Detección de objetos del entorno de trabajo tanto por imagen como por cámara en tiempo real.
+
+<img src="./programs/images/Robot Object Recognition.png" width=719 height=412>
+</p>
+
+Figura 1. API Tensorflow Object Recognition
 
 ## Listado de programas
 
-Se adjuntan el listado de programas ejemplo desarrollados en la carpeta [programs](./programs).
-
-## Documentación
-
-Se adjunta documentación relevante en la carpeta [docs](./docs).
+Se adjunta el listado de aplicaciones implementadas en [./programs](./programs).
 
 ## Enlaces de interés
 
-[Tensorflow C++ API](https://www.tensorflow.org/guide/extend/cc)
-
+* [Tensorflow: Object Detection API](https://github.com/tensorflow/models/tree/master/research/object_detection)

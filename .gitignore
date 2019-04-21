@@ -43,6 +43,7 @@ CMakeLists.txt.user*
 
 # Misc
 **/build*/
+**/models*/
 /doc/html/
 *~
 *.swp
