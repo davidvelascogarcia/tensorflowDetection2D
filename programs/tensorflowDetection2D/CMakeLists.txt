@@ -1,5 +1,4 @@
-
-
+# CMakeLists: tensorflowDetection2D
 # Add cpp and hpp files
 add_executable(tensorflowDetection2D main.cpp TensorflowDetection2D.hpp TensorflowDetection2D.cpp TensorflowDetector.hpp TensorflowDetector.cpp MainDetector.hpp MainDetector.cpp)
 # YARP, OpenCV and TensorFlow_cc packages
