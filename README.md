@@ -1,6 +1,6 @@
 # Tensorflow: Detector 2D (C++ API)
 
-[![Build Status](https://travis-ci.org/davidvelascogarcia//tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia//tensorflowDetection2D)
+[![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D)
 
 - [Introducción](#introducción)
 - [Listado de programas](#listado-de-programas)
