@@ -1,0 +1,45 @@
+# Integración continua Travis CI
+
+# Lenguaje de programación
+
+language: cpp
+
+# Sistema operativo destino a probar
+
+os: linux
+
+# Distribución del sistema operativo
+
+dist: trusty
+sudo: required
+
+services:
+  - docker
+before_install:
+  - docker pull floopcz/tensorflow_cc:ubuntu-shared
+  - docker run -itd --name build floopcz/tensorflow_cc:ubuntu-shared
+  - docker exec -it build git clone https://github.com/davidvelascogarcia/tensorflowDetection2D
+  - docker exec -it build sudo apt-get update -y
+
+  - docker exec -it build git clone https://github.com/robotology/yarp
+
+  - docker exec -it build sudo apt-get install git cmake cmake-curses-gui libeigen3-dev libace-dev libedit-dev -y
+  - docker exec -it build sudo apt-get install qtbase5-dev qtdeclarative5-dev qtmultimedia5-dev -y
+  - docker exec -it build sudo apt-get install qml-module-qtquick2 qml-module-qtquick-window2 -y
+  - docker exec -it build sudo apt-get install qml-module-qtmultimedia qml-module-qtquick-dialogs -y
+  - docker exec -it build sudo apt-get install qml-module-qtquick-controls -y
+
+  - docker exec -it build /bin/sh -c "cd yarp && mkdir build && cd build && cmake .. -DSKIP_ACE=ON -DCREATE_LIB_MATH=ON -DCREATE_GUIS=ON -DCREATE_OPTIONAL_CARRIERS=ON -DENABLE_yarpcar_mjpeg=ON;"
+  - docker exec -it build /bin/sh -c "cd yarp/build && make;"
+  - docker exec -it build /bin/sh -c "cd yarp/build && make install && ldconfig;"
+  - docker exec -it build /bin/sh -c "DEBIAN_FRONTEND=noninteractive apt-get install -y libopencv-dev;"
+
+
+
+script:
+
+  - docker exec -it build /bin/sh -c "cd tensorflowDetection2D/programs/tensorflowDetection2D && mkdir build && cd build && cmake .. && make;"
+
+after_success:
+
+
