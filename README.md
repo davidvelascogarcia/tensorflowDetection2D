@@ -1,3 +1,5 @@
+[![tensorflowDetection2D Homepage](https://img.shields.io/badge/tensorflowDetection2D-develop-orange.svg)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tree/develop/docs) [![Latest Release](https://img.shields.io/github/tag/davidvelascogarcia/tensorflowDetection2D.svg?label=Latest%20Release)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tags)[![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D)
+
 # Tensorflow: Detector 2D (C++ API)
 
 - [Introduction](#introduction)
@@ -41,6 +43,12 @@ Tested on: `ubuntu 14.04`, `ubuntu 16.04`, `ubuntu 18.04` and `lubuntu 18.04`.
 ## Additional Info
 
 * [Tensorflow: Zoo detection model](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+
+## Status
+
+[![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D)
+
+[![Issues](https://img.shields.io/github/issues/davidvelascogarcia/tensorflowDetection2D.svg?label=Issues)](https://github.com/davidvelascogarcia/tensorflowDetection2D/issues)
 
 ## Related projects
 
