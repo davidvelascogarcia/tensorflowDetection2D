@@ -1,4 +1,4 @@
-[![tensorflowDetection2D Homepage](https://img.shields.io/badge/tensorflowDetection2D-develop-orange.svg)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tree/develop/docs) [![Latest Release](https://img.shields.io/github/tag/davidvelascogarcia/tensorflowDetection2D.svg?label=Latest%20Release)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tags)[![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D)
+[![tensorflowDetection2D Homepage](https://img.shields.io/badge/tensorflowDetection2D-develop-orange.svg)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tree/develop/docs) [![Latest Release](https://img.shields.io/github/tag/davidvelascogarcia/tensorflowDetection2D.svg?label=Latest%20Release)](https://github.com/davidvelascogarcia/tensorflowDetection2D/tags) [![Build Status](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D.svg?branch=develop)](https://travis-ci.org/davidvelascogarcia/tensorflowDetection2D)
 
 # Tensorflow: Detector 2D (C++ API)
 
