@@ -119,6 +119,9 @@ int maindetector::runDetection(std::string labels, std::string graph, yarp::os::
 
     while (true) {
 
+	// Clear Bottle
+	bottle.clear();
+
         // Recieve image
         yarp::sig::ImageOf<yarp::sig::PixelRgb> *tensorflowDetection2DImg = tensorflowDetection2DImgInputI->read();
         cv::Mat inImg = cv::cvarrToMat((IplImage *)tensorflowDetection2DImg->getIplImage());
@@ -181,7 +184,6 @@ int maindetector::runDetection(std::string labels, std::string graph, yarp::os::
         cv::putText(frame, std::to_string(fps).substr(0, 5), cv::Point(0, frame.rows), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255));
 
         // Prepare data bottle
-        bottle.clear();
         bottle.addString(" Detection number: ");
         bottle.addInt(goodIdxs.size());
         bottle.addString(" Detection: ");
