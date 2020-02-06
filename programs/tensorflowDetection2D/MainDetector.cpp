@@ -1,22 +1,26 @@
 
 // Libraries
-
-#include <fstream>
-#include <utility>
-#include <vector>
-#include <iostream>
 #include <time.h>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string.h>
+#include <utility>
+#include <vector>
+
 #include <yarp/os/Bottle.h>
 #include <yarp/os/BufferedPort.h>
+#include <yarp/sig/Image.h>
 #include <yarp/os/Port.h>
 #include <yarp/os/PortReader.h>
-#include <yarp/sig/Image.h>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/videoio.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+
 #include <cv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/videoio.hpp>
+
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
 #include "tensorflow/cc/ops/standard_ops.h"
@@ -29,32 +33,31 @@
 #include "tensorflow/core/platform/init_main.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
-#include "TensorflowDetector.hpp"
+
 #include "MainDetector.hpp"
-#include <map>
-#include <string.h>
-
-
-int maindetector::detect(std::string labels, std::string graph, yarp::os::Port sender_port_post, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg, yarp::os::Port results_port) {
+#include "TensorflowDetector.hpp"
 
 
 
-    // Path
+int maindetector::runDetection(std::string labels, std::string graph, yarp::os::Port tensorflowDetection2DImgOutput, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInput, yarp::os::Port tensorflowDetection2DDataOutput) {
+
+    // Recieve paths
     std::string LABELS = labels;
     std::string GRAPH = graph;
 
-    // Set  nombres nodos entrada y salida
+    // Set nodes input/output names
     tensorflow::string inputLayer = "image_tensor:0";
     std::vector<std::string> outputLayer = {"detection_boxes:0", "detection_scores:0", "detection_classes:0", "num_detections:0"};
 
-    // Load .pb frozen model
+    // Load an check .pb frozen model
     std::unique_ptr<tensorflow::Session> session;
     tensorflow::string graphPath = GRAPH;
     std::cout<<"The graph it´s going to be loaded:" << graphPath<<"."<<std::endl;
     std::cout<<"Loading graph..."<<std::endl;
 
     tensorflow::Status loadGraphStatus = loadGraph(graphPath, &session);
-    if (!loadGraphStatus.ok()) {
+    if (!loadGraphStatus.ok())
+    {
         std::cout<<std::endl;
         std::cout<<std::endl;
         std::cout<<"Fail loading graph "<<graphPath<<"."<<std::endl;
@@ -65,13 +68,15 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
         std::cout<<"Graph "<<graphPath<<" loaded correctly."<<std::endl;
 
 
-    // Load labels
+    // Load and check labels
     std::map<int, std::string> labelsMap = std::map<int,std::string>();
     std::cout<<std::endl;
     std::cout<<std::endl;
     std::cout<<"Labels "<<LABELS<<" are going to be loaded."<<std::endl;
     tensorflow::Status readLabelsMapStatus = readLabelsMapFile(LABELS, labelsMap);
-    if (!readLabelsMapStatus.ok()) {
+
+    if (!readLabelsMapStatus.ok())
+    {
         std::cout<<"Fail loading labels "<<LABELS<<"."<<std::endl;
         return -1;
     } else
@@ -80,6 +85,8 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
 
     std::cout<<std::endl;
     std::cout<<std::endl;
+
+    // Configure Tensor
     std::cout<<"Video source frames are going to be taken."<<std::endl;
     cv::Mat frame;
     tensorflow::Tensor tensor;
@@ -93,26 +100,33 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
     double fps = 0.;
     time_t start, end;
     time(&start);
-    yarp::sig::ImageOf<yarp::sig::PixelRgb> *inImgYi = inImg->read();
+
+    // Get image
+    yarp::sig::ImageOf<yarp::sig::PixelRgb> *tensorflowDetection2DImgInputShape = tensorflowDetection2DImgInput->read();
+    yarp::os::Bottle bottle;
+
+    // Configure shape
     tensorflow::TensorShape shape = tensorflow::TensorShape();
     shape.AddDim(1);
-    shape.AddDim((tensorflow::int64)inImgYi->height());//cap.get(cv::CAP_PROP_FRAME_HEIGHT)->800
-    shape.AddDim((tensorflow::int64)inImgYi->width());//cap.get(cv::CAP_PROP_FRAME_WIDTH)->600
+    shape.AddDim((tensorflow::int64)tensorflowDetection2DImgInputShape->height());
+    shape.AddDim((tensorflow::int64)tensorflowDetection2DImgInputShape->width());
     shape.AddDim(3);
+
     std::cout<<std::endl;
     std::cout<<std::endl;
     std::cout<<"Taking frames..."<<std::endl;
-    inImg_i=inImg;
-    yarp::os::Bottle bottle;
+    tensorflowDetection2DImgInputI=tensorflowDetection2DImgInput;
 
     while (true) {
 
-        yarp::sig::ImageOf<yarp::sig::PixelRgb> *inImgY = inImg_i->read();
-        cv::Mat in_cv = cv::cvarrToMat((IplImage *)inImgY->getIplImage());
-        frame=in_cv;
+        // Recieve image
+        yarp::sig::ImageOf<yarp::sig::PixelRgb> *tensorflowDetection2DImg = tensorflowDetection2DImgInputI->read();
+        cv::Mat inImg = cv::cvarrToMat((IplImage *)tensorflowDetection2DImg->getIplImage());
+        frame=inImg;
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-        std::cout << "Frame: " << iFrame << std::endl;
 
+        // Count frames
+        std::cout << "Frame: " << iFrame << std::endl;
         if (nFrames % (iFrame + 1) == 0) {
             time(&end);
             fps = 1. * nFrames / difftime(end, start);
@@ -120,7 +134,7 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
         }
         iFrame++;
 
-        // Mat -> Tensor
+        // Mat -> Tensor and check Tensor
         tensor = tensorflow::Tensor(tensorflow::DT_FLOAT, shape);
         tensorflow::Status readTensorStatus = readTensorFromMat(frame, tensor);
         if (!readTensorStatus.ok()) {;
@@ -146,15 +160,27 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
         tensorflow::TTypes<float>::Flat numDetections = outputs[3].flat<float>();
         tensorflow::TTypes<float, 3>::Tensor boxes = outputs[0].flat_outer_dims<float,3>();
 
+        // Print results
         std::vector<size_t> goodIdxs = filterBoxes(scores, boxes, thresholdIOU, thresholdScore);
-        for (size_t i = 0; i < goodIdxs.size(); i++){
+        for (size_t i = 0; i < goodIdxs.size(); i++)
+        {
         std::cout<<std::endl;
         std::cout<<std::endl;
         std::cout<<"Detection: "<<labelsMap[classes(goodIdxs.at(i))]<< " -> Score: "<<scores(goodIdxs.at(i))<<std::endl;
 
-
+        // Get score detection
         double score_detection=scores(goodIdxs.at(i));
         std::string class_name=std::string(labelsMap[classes(goodIdxs.at(i))]);
+
+        std::cout<<std::endl;
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+
+        // Draw detection and get coordinates
+        std::string coordXY;
+        coordXY=drawBoundingBoxesOnImage(frame, scores, classes, boxes, labelsMap, goodIdxs);
+        cv::putText(frame, std::to_string(fps).substr(0, 5), cv::Point(0, frame.rows), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255));
+
+        // Prepare data bottle
         bottle.clear();
         bottle.addString(" Detection number: ");
         bottle.addInt(goodIdxs.size());
@@ -162,22 +188,26 @@ int maindetector::detect(std::string labels, std::string graph, yarp::os::Port s
         bottle.addString(class_name);
         bottle.addString(" Score: ");
         bottle.addDouble(score_detection);
+        bottle.addString(" Coordinates: ");
+        bottle.addString(coordXY);
 
+        // Print coordinates
+        std::cout<<"Coordinates: "<<coordXY<<std::endl;
         std::cout<<std::endl;
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-        drawBoundingBoxesOnImage(frame, scores, classes, boxes, labelsMap, goodIdxs);
-        cv::putText(frame, std::to_string(fps).substr(0, 5), cv::Point(0, frame.rows), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(255, 255, 255));
-
     }
-    yarp::sig::ImageOf<yarp::sig::PixelBgr> C;
-    C.setExternal(frame.data,frame.size[1],frame.size[0]);
-    sender_port_post.write(C);
-    results_port.write(bottle);
-    cv::imshow("Video source: Processed", frame);
-    cv::waitKey(5);
+
+    // Publish results
+    yarp::sig::ImageOf<yarp::sig::PixelBgr> imgOutput;
+    imgOutput.setExternal(frame.data,frame.size[1],frame.size[0]);
+    tensorflowDetection2DImgOutput.write(imgOutput);
+    tensorflowDetection2DDataOutput.write(bottle);
+
+    // Show image directly by openCV
+    /*cv::imshow("Video source: Processed", frame);
+    cv::waitKey(5);*/
 
 }
-    cv::destroyAllWindows();
+    //cv::destroyAllWindows();
 
     return 0;
 }

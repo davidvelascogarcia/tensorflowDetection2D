@@ -1,11 +1,26 @@
 #ifndef MAINDETECTOR_HPP
 #define MAINDETECTOR_HPP
 
+// Libraries
 #include <fstream>
-#include <utility>
-#include <vector>
 #include <iostream>
 #include <time.h>
+#include <utility>
+#include <vector>
+
+#include <yarp/os/Bottle.h>
+#include <yarp/os/BufferedPort.h>
+#include <yarp/os/ConnectionReader.h>
+#include <yarp/sig/Image.h>
+#include <yarp/os/Port.h>
+#include <yarp/os/PortReader.h>
+
+#include <cv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
 #include "tensorflow/cc/ops/standard_ops.h"
@@ -18,25 +33,15 @@
 #include "tensorflow/core/platform/init_main.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
-#include <yarp/os/Bottle.h>
-#include <yarp/os/BufferedPort.h>
-#include <yarp/os/ConnectionReader.h>
-#include <yarp/os/Port.h>
-#include <yarp/os/PortReader.h>
-#include <yarp/sig/Image.h>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/videoio.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <cv.hpp>
-#include "TensorflowDetector.hpp"
 
+#include "TensorflowDetector.hpp"
 
 class maindetector
 {
 public:
-int detect(std::string labels, std::string graph, yarp::os::Port sender_port_post, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg, yarp::os::Port results_port);
+int runDetection(std::string labels, std::string graph, yarp::os::Port tensorflowDetection2DImgOutput, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInput, yarp::os::Port tensorflowDetection2DDataOutput);
+
 private:
-yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg_i;
+yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInputI;
 };
 #endif //MAINDETECTOR_HPP

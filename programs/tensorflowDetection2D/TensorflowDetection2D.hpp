@@ -13,8 +13,9 @@
 
 #include <iostream>
 #include <string>
-#include <yarp/os/Network.h>
+
 #include <yarp/os/BufferedPort.h>
+#include <yarp/os/Network.h>
 #include <yarp/os/Port.h>
 #include <yarp/os/RFModule.h>
 #include <yarp/sig/Image.h>
@@ -23,17 +24,13 @@ class tensorflowDetection2D
 {
 public:
     tensorflowDetection2D();
-    void init( std::string labels, std::string graph);
-    int detector(yarp::os::Port sender_port_post, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg, yarp::os::Port results_port);
-
-// Variables
-
-    std::string cam_path="0";
+    void initDetector( std::string labels, std::string graph);
+    int runDetector(yarp::os::Port tensorflowDetection2DImgOutput, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInput, yarp::os::Port tensorflowDetection2DDataOutput);
 
 private:
-    std::string vgg16_graph;
-    std::string vgg16_labels;
-    yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg_i;
+    std::string modelPath;
+    std::string labelPath;
+    yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInputI;
 
 };
 

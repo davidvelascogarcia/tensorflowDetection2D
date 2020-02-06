@@ -8,33 +8,38 @@
 
 // Libraries
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <utility>
 #include <vector>
-#include <iostream>
+
 #include <yarp/os/BufferedPort.h>
-#include <yarp/os/Port.h>
 #include <yarp/sig/Image.h>
+#include <yarp/os/Port.h>
+
+#include "MainDetector.hpp"
 #include "TensorflowDetection2D.hpp"
 #include "TensorflowDetector.hpp"
-#include "MainDetector.hpp"
 
 
 tensorflowDetection2D::tensorflowDetection2D()
 {
 }
 
-void tensorflowDetection2D::init(std::string labels, std::string graph)
+void tensorflowDetection2D::initDetector(std::string labels, std::string graph)
 {
-  vgg16_graph=graph;
-  vgg16_labels=labels;
+  // Get paths
+  modelPath=graph;
+  labelPath=labels;
 }
 
-int tensorflowDetection2D::detector(yarp::os::Port sender_port_post, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *inImg, yarp::os::Port results_port){
+int tensorflowDetection2D::runDetector(yarp::os::Port tensorflowDetection2DImgOutput, yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelRgb> > *tensorflowDetection2DImgInput, yarp::os::Port tensorflowDetection2DDataOutput){
 
-  inImg_i=inImg;
-  maindetector detection_module;
-  detection_module.detect(vgg16_labels, vgg16_graph, sender_port_post, inImg_i, results_port);
+  // Connect image input ports objects
+  tensorflowDetection2DImgInputI=tensorflowDetection2DImgInput;
+
+  // Init main detector
+  maindetector detectorModule;
+  detectorModule.runDetection(labelPath, modelPath, tensorflowDetection2DImgOutput, tensorflowDetection2DImgInputI, tensorflowDetection2DDataOutput);
   return 0;
 }

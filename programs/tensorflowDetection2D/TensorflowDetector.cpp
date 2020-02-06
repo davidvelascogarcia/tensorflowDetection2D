@@ -1,12 +1,16 @@
 
 // Libraries
-
-#include <math.h>
 #include <fstream>
+#include <iostream>
+#include <math.h>
+#include <regex>
 #include <utility>
 #include <vector>
-#include <iostream>
-#include <regex>
+
+#include <cv.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/image_ops.h"
 #include "tensorflow/cc/ops/standard_ops.h"
@@ -25,35 +29,33 @@
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
-#include <cv.hpp>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+
 #include "TensorflowDetector.hpp"
 
 // Create session and load graph
-
-tensorflow::Status loadGraph(const tensorflow::string &graph_file_name,
-              std::unique_ptr<tensorflow::Session> *session) {
+tensorflow::Status loadGraph(const tensorflow::string &graph_file_name, std::unique_ptr<tensorflow::Session> *session)
+{
     tensorflow::GraphDef graph_def;
-    tensorflow::Status load_graph_status =
-            ReadBinaryProto(tensorflow::Env::Default(), graph_file_name, &graph_def);
-    if (!load_graph_status.ok()) {
-        return tensorflow::errors::NotFound("Fail loading graph: '",
-                                            graph_file_name, "'");
+    tensorflow::Status load_graph_status =  ReadBinaryProto(tensorflow::Env::Default(), graph_file_name, &graph_def);
+
+    if (!load_graph_status.ok())
+    {
+        return tensorflow::errors::NotFound("Fail loading graph: '", graph_file_name, "'");
     }
+
     session->reset(tensorflow::NewSession(tensorflow::SessionOptions()));
     tensorflow::Status session_create_status = (*session)->Create(graph_def);
-    if (!session_create_status.ok()) {
+
+    if (!session_create_status.ok())
+    {
         return session_create_status;
     }
     return tensorflow::Status::OK();
 }
 
 // Read labels
-
-tensorflow::Status readLabelsMapFile(const tensorflow::string &fileName, std::map<int, tensorflow::string> &labelsMap) {
-
-
+tensorflow::Status readLabelsMapFile(const tensorflow::string &fileName, std::map<int, tensorflow::string> &labelsMap)
+{
     std::ifstream t(fileName);
     if (t.bad())
         return tensorflow::errors::NotFound("Fail loading labels: '", fileName, "'");
@@ -75,7 +77,8 @@ tensorflow::Status readLabelsMapFile(const tensorflow::string &fileName, std::ma
 
     int id;
     std::string name;
-    for (std::sregex_iterator i = stringBegin; i != stringEnd; i++) {
+    for (std::sregex_iterator i = stringBegin; i != stringEnd; i++)
+    {
         matcherEntry = *i;
         entry = matcherEntry.str();
         std::regex_search(entry, matcherId, reId);
@@ -95,13 +98,11 @@ tensorflow::Status readLabelsMapFile(const tensorflow::string &fileName, std::ma
 
 
 //  Mat OpenCV -> TensorFlow
-
-tensorflow::Status readTensorFromMat(const cv::Mat &mat, tensorflow::Tensor &outTensor) {
-
+tensorflow::Status readTensorFromMat(const cv::Mat &mat, tensorflow::Tensor &outTensor)
+{
     auto root = tensorflow::Scope::NewRootScope();
     using namespace ::tensorflow::ops;
 
-    // Trick from https://github.com/tensorflow/tensorflow/issues/8033
     float *p = outTensor.flat<float>().data();
     cv::Mat fakeMat(mat.rows, mat.cols, CV_32FC3, p);
     mat.convertTo(fakeMat, CV_32FC3);
@@ -125,13 +126,16 @@ tensorflow::Status readTensorFromMat(const cv::Mat &mat, tensorflow::Tensor &out
 }
 
 
-void drawBoundingBoxOnImage(cv::Mat &image, double yMin, double xMin, double yMax, double xMax, double score, std::string label, bool scaled=true) {
+std::string drawBoundingBoxOnImage(cv::Mat &image, double yMin, double xMin, double yMax, double xMax, double score, std::string label, bool scaled=true)
+{
     cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
     cv::Point tl, br;
-    if (scaled) {
+    if (scaled)
+    {
         tl = cv::Point((int) (xMin * image.cols), (int) (yMin * image.rows));
         br = cv::Point((int) (xMax * image.cols), (int) (yMax * image.rows));
-    } else {
+    } else
+    {
         tl = cv::Point((int) xMin, (int) yMin);
         br = cv::Point((int) xMax, (int) yMax);
     }
@@ -146,24 +150,39 @@ void drawBoundingBoxOnImage(cv::Mat &image, double yMin, double xMin, double yMa
     cv::rectangle(image, tl, brRect, cv::Scalar(0, 255, 255), -1);
     cv::Point textCorner = cv::Point(tl.x, tl.y + fontCoeff * 0.9);
     cv::putText(image, caption, textCorner, cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 0, 0));
+
+    // Get coordinates
+    int x;
+    int y;
+    x=((tl.x+br.x)/2);
+    y=image.rows-((br.y+tl.y)/2);
+
+    // Integer to String
+    std::stringstream ssX;
+    ssX << x;
+    std::stringstream ssY;
+    ssY << y;
+
+    // Concatenation
+    std::string coordXY= ssX.str()+","+ ssY.str();
+
+    return coordXY;
 }
 
-
-void drawBoundingBoxesOnImage(cv::Mat &image,
-                              tensorflow::TTypes<float>::Flat &scores,
-                              tensorflow::TTypes<float>::Flat &classes,
-                              tensorflow::TTypes<float,3>::Tensor &boxes,
-                              std::map<int, tensorflow::string> &labelsMap,
-                              std::vector<size_t> &idxs) {
+// Draw box in each detection
+std::string drawBoundingBoxesOnImage(cv::Mat &image, tensorflow::TTypes<float>::Flat &scores, tensorflow::TTypes<float>::Flat &classes, tensorflow::TTypes<float,3>::Tensor &boxes, std::map<int, tensorflow::string> &labelsMap, std::vector<size_t> &idxs)
+{
+    std::string coordXY;
     for (int j = 0; j < idxs.size(); j++)
-        drawBoundingBoxOnImage(image,
-                               boxes(0,idxs.at(j),0), boxes(0,idxs.at(j),1),
-                               boxes(0,idxs.at(j),2), boxes(0,idxs.at(j),3),
-                               scores(idxs.at(j)), labelsMap[classes(idxs.at(j))]);
+    {
+        coordXY=drawBoundingBoxOnImage(image, boxes(0,idxs.at(j),0), boxes(0,idxs.at(j),1), boxes(0,idxs.at(j),2), boxes(0,idxs.at(j),3), scores(idxs.at(j)), labelsMap[classes(idxs.at(j))]);
+    }
+    return coordXY;
 }
 
 
-double IOU(cv::Rect2f box1, cv::Rect2f box2) {
+double IOU(cv::Rect2f box1, cv::Rect2f box2)
+{
 
     float xA = std::max(box1.tl().x, box2.tl().x);
     float yA = std::max(box1.tl().y, box2.tl().y);
@@ -176,32 +195,34 @@ double IOU(cv::Rect2f box1, cv::Rect2f box2) {
     return 1. * intersectArea / unionArea;
 }
 
-std::vector<size_t> filterBoxes(tensorflow::TTypes<float>::Flat &scores,
-                           tensorflow::TTypes<float, 3>::Tensor &boxes,
-                           double thresholdIOU, double thresholdScore) {
-
+std::vector<size_t> filterBoxes(tensorflow::TTypes<float>::Flat &scores, tensorflow::TTypes<float, 3>::Tensor &boxes, double thresholdIOU, double thresholdScore)
+{
     std::vector<size_t> sortIdxs(scores.size());
     iota(sortIdxs.begin(), sortIdxs.end(), 0);
 
     std::set<size_t> badIdxs = std::set<size_t>();
     size_t i = 0;
-    while (i < sortIdxs.size()) {
+
+    while (i < sortIdxs.size())
+    {
         if (scores(sortIdxs.at(i)) < thresholdScore)
             badIdxs.insert(sortIdxs[i]);
-        if (badIdxs.find(sortIdxs.at(i)) != badIdxs.end()) {
+        if (badIdxs.find(sortIdxs.at(i)) != badIdxs.end())
+        {
             i++;
             continue;
         }
 
-        cv::Rect2f box1 = cv::Rect2f(cv::Point2f(boxes(0, sortIdxs.at(i), 1), boxes(0, sortIdxs.at(i), 0)),
-                             cv::Point2f(boxes(0, sortIdxs.at(i), 3), boxes(0, sortIdxs.at(i), 2)));
-        for (size_t j = i + 1; j < sortIdxs.size(); j++) {
-            if (scores(sortIdxs.at(j)) < thresholdScore) {
+        cv::Rect2f box1 = cv::Rect2f(cv::Point2f(boxes(0, sortIdxs.at(i), 1), boxes(0, sortIdxs.at(i), 0)), cv::Point2f(boxes(0, sortIdxs.at(i), 3), boxes(0, sortIdxs.at(i), 2)));
+
+        for (size_t j = i + 1; j < sortIdxs.size(); j++)
+        {
+            if (scores(sortIdxs.at(j)) < thresholdScore)
+            {
                 badIdxs.insert(sortIdxs[j]);
                 continue;
             }
-            cv::Rect2f box2 = cv::Rect2f(cv::Point2f(boxes(0, sortIdxs.at(j), 1), boxes(0, sortIdxs.at(j), 0)),
-                                 cv::Point2f(boxes(0, sortIdxs.at(j), 3), boxes(0, sortIdxs.at(j), 2)));
+            cv::Rect2f box2 = cv::Rect2f(cv::Point2f(boxes(0, sortIdxs.at(j), 1), boxes(0, sortIdxs.at(j), 0)), cv::Point2f(boxes(0, sortIdxs.at(j), 3), boxes(0, sortIdxs.at(j), 2)));
             if (IOU(box1, box2) > thresholdIOU)
                 badIdxs.insert(sortIdxs[j]);
         }
