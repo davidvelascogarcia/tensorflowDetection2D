@@ -4,6 +4,7 @@
 
 - [Introduction](#introduction)
 - [Trained Models](#trained-models)
+- [Running Software](#running-software)
 - [Requirements](#requirements)
 - [Additional Info](#additional-info)
 - [Related projects](#related-projects)
@@ -28,6 +29,34 @@ Allowed paths can be shown:
 ```bash
 yarp resource 
 ```
+
+## Running Software
+
+1. Create or configure YARP Server.
+```bash
+yarp server
+
+yarp conf pc-ip 10000
+```
+2. Execute [programs/tensorflowDetection2D](./programs/tensorflowDetection2D) the detector.
+```bash
+cd programs
+mkdir build
+cd build
+cmake ..
+make
+./tensorflowDetection2D
+```
+3. Connect video source to `tensorflowDetection2D`.
+```bash
+yarp connect /videoSource /tensorflowDetection2D/img:i
+```
+
+NOTE:
+
+- Video results are published on `/tensorflowDetection2D/img:o`
+- Data results are published on `/tensorflowDetection2D/data:o`
+- Coordinate results are published on `/tensorflowDetection2D/coord:o`
 
 ## Requirements
 
